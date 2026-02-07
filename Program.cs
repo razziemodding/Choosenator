@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
+using SteamWebAPI2.Utilities;
+
 // ReSharper disable All
 
 class choosenator {
@@ -42,10 +44,18 @@ class choosenator {
         
         HttpClient client = new HttpClient();
         IList<string> appNames = new List<string>();
+        SteamWebInterfaceFactory webInterfaceFactory = new SteamWebInterfaceFactory("7BAF8B6054AFBF26CE70AAB2D8E22589");
+        var store = webInterfaceFactory.CreateSteamStoreInterface(client);
 
         foreach (int appId in appIds) {
-            HttpResponseMessage appData =
-                await client.GetAsync("https://store.steampowered.com/api/appdetails/?appids=" + appId);
+            var gameInfo = store.GetStoreAppDetailsAsync((uint) appId);
+
+            string name = gameInfo.Result.Name;
+            names.Add(name);
+            
+            Console.WriteLine(name);
+            
+            /*
             string temp = await appData.Content.ReadAsStringAsync();
             try {
                 JObject appDataJson = JObject.Parse(temp);
@@ -59,6 +69,7 @@ class choosenator {
                 Console.WriteLine("This is typically caused by the Steam API failing to provide data...");
                 Console.WriteLine("...i think.");
             }
+            */
         }
         
         Console.WriteLine("Found " + names.Count + " game names.");
